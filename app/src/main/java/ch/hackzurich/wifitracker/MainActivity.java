@@ -1,6 +1,7 @@
 package ch.hackzurich.wifitracker;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -88,6 +89,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        }
+
+        else if (id == R.id.roomMapActivity){
+            Intent intent = new Intent(this,RoomMapActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
