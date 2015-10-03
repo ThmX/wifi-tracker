@@ -12,6 +12,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -92,22 +93,29 @@ public class RoomMapActivity extends AppCompatActivity {
                     boolean xBitmapValid = xBitmap > 0 && xBitmap < widthBitmap;
                     boolean yBitmapValid = yBitmap > 0 && yBitmap < heightBitmap;
 
+
+                    // if valid coordinates
                     if(xBitmapValid && yBitmapValid){
+                        // create capture
+                        Capture capture = mCaptureService.acquire(xBitmap, yBitmap);
+                        mCaptureList.add(capture);
+                        mConsole.setText("Measurement: " + capture.getLevels());
+                        Log.i("Number of captures", String.valueOf(mCaptureList.size()));
+                        Log.i("CaptureLevels:", capture.getLevels());
+
+                        // draw
                         Canvas canvas = new Canvas(imageContentMutable);
                         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
                         paint.setColor(Color.RED);
-                        canvas.drawCircle(xBitmap, yBitmap, 40, paint);
+                        canvas.drawCircle(xBitmap, yBitmap, 30, paint);
+                        paint.setStrokeWidth(12);
+                        if (mCaptureList.size() > 1) {
+                            canvas.drawLine(mCaptureList.get(mCaptureList.size() - 2).getX(),
+                                    mCaptureList.get(mCaptureList.size() - 2).getY(),
+                                    xBitmap, yBitmap, paint);
+                        }
                         mRoomMapImageView.setImageBitmap(imageContentMutable);
-
-                        mConsole.setText("\n xView: " + xImageView + " \n yView: " + yImageView + "\n xBitmap: " + xBitmap + " \n yBitmap: " + yBitmap);
                     }
-                    else{
-                        mConsole.setText("\n xView: " + xImageView + " \n yView: " + yImageView + "\n xBitmap: -" + " \n yBitmap: -");
-                    }
-
-                    // acquire and set x and y
-                    Capture capture = mCaptureService.acquire(xBitmap, yBitmap);
-                    mCaptureList.add(capture);
                 }
                 return true;
             }

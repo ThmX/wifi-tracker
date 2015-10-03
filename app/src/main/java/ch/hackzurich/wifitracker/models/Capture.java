@@ -53,6 +53,19 @@ public class Capture {
     public void toJson() {
     }
 
+    // get levels as string output
+    public String getLevels() {
+        String levels = "";
+        for(CaptureSpot s:spots) {
+            levels = levels + String.valueOf(s.getLevel()) + "; ";
+        }
+        if (levels.length() >= 2) {
+            levels = levels.substring(0, levels.length() - 2);
+        }
+
+        return levels;
+    }
+
     @Override
     public String toString() {
         return "Capture{" +
