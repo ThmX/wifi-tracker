@@ -37,21 +37,21 @@
                 android:layout_alignParentLeft="true"
                 android:layout_marginLeft="0dp"
                 android:layout_alignParentTop="true"
-                android:layout_marginTop="0dp" />
+                android:layout_marginTop="0dp"
+                android:layout_marginRight="15dp"/>
 
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_alignParentLeft="true"
                 android:layout_marginLeft="0dp"
+                android:layout_marginTop="0dp"
                 android:layout_alignParentTop="true"
-                android:layout_marginTop="0dp">
+                android:layout_alignParentRight="true">
 
                 <TextView android:id="@+id/consoleRoomMap"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="fill_horizontal|fill_vertical"
-                    android:text="Juhui" />
+                    android:gravity="fill_horizontal|fill_vertical" />
             </RelativeLayout>
 
         </RelativeLayout>

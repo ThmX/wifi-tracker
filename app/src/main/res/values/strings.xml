@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WifiTracker</string>
+    <string name="app_name">Wifi-Tracker</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_room_map">Map</string>
     <string name="roomMapInstructions">Please measure the Wifi signal strength at various points in the room by clicking on your current position on the map.</string>

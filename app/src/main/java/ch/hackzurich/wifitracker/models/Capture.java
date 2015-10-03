@@ -49,11 +49,11 @@ public class Capture {
     public String getLevels() {
         String levels = "";
         for(Hotspot s: hotspots) {
-            levels = levels + String.valueOf(s.getLevel()) + "; ";
+            levels = levels + "\n                  " + String.valueOf(s.getLevel());
         }
-        if (levels.length() >= 2) {
-            levels = levels.substring(0, levels.length() - 2);
-        }
+//        if (levels.length() >= 2) {
+//            levels = levels.substring(0, levels.length() - 2);
+//        }
 
         return levels;
     }
