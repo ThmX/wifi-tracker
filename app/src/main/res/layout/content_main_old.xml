@@ -7,19 +7,18 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:showIn="@layout/activity_room_map"
-    tools:context="ch.hackzurich.wifitracker.RoomMapActivity">
+    tools:showIn="@layout/activity_main" tools:context=".MainActivity">
 
+    <TextView android:id="@+id/console"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
 
-
-    <ImageView
-        android:layout_width="wrap_content"
+    <Button
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/roomMapImageView"
-        />
-
-    <TextView android:id="@+id/consoleRoomMap"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
+        android:text="Capture"
+        android:id="@+id/button"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:onClick="onCapture" />
 </RelativeLayout>

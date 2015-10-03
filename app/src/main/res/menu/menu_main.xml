@@ -4,5 +4,5 @@
     <item android:id="@+id/action_settings" android:title="@string/action_settings"
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/roomMapActivity" android:title="@string/title_activity_room_map"
-        android:orderInCategory="10" app:showAsAction="always" />
+        android:orderInCategory="10" app:showAsAction="never" />
 </menu>

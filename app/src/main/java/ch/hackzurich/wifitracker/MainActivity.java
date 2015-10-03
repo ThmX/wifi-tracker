@@ -1,38 +1,37 @@
 package ch.hackzurich.wifitracker;
 
 import android.content.Context;
-import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.hackzurich.wifitracker.models.Capture;
 import ch.hackzurich.wifitracker.services.CaptureService;
+import ch.hackzurich.wifitracker.services.WebService;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
+public class MainActivity extends AppCompatActivity {
 
+    private ImageView mRoomMapImageView;
     private CaptureService mCaptureService;
-
-    private SensorManager mSensorManager;
-
+    private Bitmap mRoomMap;
     private TextView mConsole;
+    private List<Capture> mCaptureList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,68 +40,95 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mSensorManager = (SensorManager) getApplication().getSystemService(Context.SENSOR_SERVICE);
-        Sensor mStepSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-        Sensor mOrientationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
-
-        mSensorManager.registerListener(this, mStepSensor, SensorManager.SENSOR_DELAY_NORMAL);
-//        mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_NORMAL);
-
+        //capture service
         mCaptureService = new CaptureService(
                 (WifiManager) getApplication().getSystemService(Context.WIFI_SERVICE),
                 "hackzurich"
         );
 
-        mConsole = (TextView) findViewById(R.id.console);
+        // Capture List
+        mCaptureList = new ArrayList<Capture>();
+
+
+        // ImageView
+        mRoomMapImageView = (ImageView) findViewById(R.id.roomMapImageView);
+
+        // Console
+        mConsole = (TextView) findViewById(R.id.consoleRoomMap);
+
+        // Default Image
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        mRoomMap = BitmapFactory.decodeResource(getResources(), R.drawable.technopark_0, options);
+        mRoomMapImageView.setImageBitmap(mRoomMap);
+
+        // Starting Values of Image
+        ImageView v = mRoomMapImageView;
+
+        // Listener
+        View.OnTouchListener touchListener = new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                if (v.equals(mRoomMapImageView)) {
+
+                    // get image-view coordinates
+                    float xImageView = event.getX();
+                    float yImageView = event.getY();
+
+                    // map the coordinates onto the bitmap-coordinates
+                    float[] coordinates = new float[]{xImageView, yImageView};
+                    Matrix matrix = new Matrix();
+
+                    mRoomMapImageView.getImageMatrix().invert(matrix);
+                    matrix.postTranslate(mRoomMapImageView.getScrollX(), mRoomMapImageView.getScrollY());
+                    matrix.mapPoints(coordinates);
+
+                    float xBitmap = coordinates[0];
+                    float yBitmap = coordinates[1];
+
+                    // Paint a red dot at the touched point
+                    Bitmap imageContent = ((BitmapDrawable) mRoomMapImageView.getDrawable()).getBitmap();
+                    Bitmap imageContentMutable = imageContent.copy(Bitmap.Config.ARGB_8888, true);
+
+                    int widthBitmap = imageContentMutable.getWidth();
+                    int heightBitmap = imageContentMutable.getHeight();
+
+                    boolean xBitmapValid = xBitmap > 0 && xBitmap < widthBitmap;
+                    boolean yBitmapValid = yBitmap > 0 && yBitmap < heightBitmap;
+
+
+                    // if valid coordinates
+                    if(xBitmapValid && yBitmapValid){
+                        // create capture
+                        Capture capture = mCaptureService.acquire(xBitmap / (float) widthBitmap, yBitmap / (float) heightBitmap);
+                        mCaptureList.add(capture);
+                        mConsole.setText("Measurement: " + capture.getLevels());
+
+                        // DEBUG
+                        Log.i("Number of captures", String.valueOf(mCaptureList.size()));
+                        Log.i("CaptureLevels:", capture.getLevels());
+                        WebService.preview(capture, mConsole.getContext());
+
+
+                        // draw
+                        Canvas canvas = new Canvas(imageContentMutable);
+                        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                        paint.setColor(Color.RED);
+                        canvas.drawCircle(xBitmap, yBitmap, 30, paint);
+                        paint.setStrokeWidth(12);
+                        if (mCaptureList.size() > 1) {
+                            canvas.drawLine(mCaptureList.get(mCaptureList.size() - 2).getX() * widthBitmap,
+                                    mCaptureList.get(mCaptureList.size() - 2).getY() * heightBitmap,
+                                    xBitmap, yBitmap, paint);
+                        }
+                        mRoomMapImageView.setImageBitmap(imageContentMutable);
+                    }
+                }
+                return true;
+            }
+        };
+
+        mRoomMapImageView.setOnTouchListener(touchListener);
+
     }
 
-    public void onCapture(View view) {
-        Capture capture = mCaptureService.acquire();
-        mConsole.setText(capture.toString());
-    }
 
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
-            Log.i("Step detector", Arrays.toString(event.values));
-        }
-        else if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-            Log.i("Orientation sensor", Arrays.toString(event.values));
-        }
-
-        Capture capture = mCaptureService.acquire();
-        mConsole.setText(capture.toString());
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // We'll see about that later
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        else if (id == R.id.roomMapActivity){
-            Intent intent = new Intent(this,RoomMapActivity.class);
-            startActivity(intent);
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 }
