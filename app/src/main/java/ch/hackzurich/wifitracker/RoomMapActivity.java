@@ -19,6 +19,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ch.hackzurich.wifitracker.models.Capture;
 import ch.hackzurich.wifitracker.services.CaptureService;
 
@@ -28,6 +31,7 @@ public class RoomMapActivity extends AppCompatActivity {
     private CaptureService mCaptureService;
     private Bitmap mRoomMap;
     private TextView mConsole;
+    private List<Capture> captureList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +45,10 @@ public class RoomMapActivity extends AppCompatActivity {
                 (WifiManager) getApplication().getSystemService(Context.WIFI_SERVICE),
                 "hackzurich"
         );
+
+        // Capture List
+        captureList = new ArrayList<Capture>();
+
 
         // ImageView
         mRoomMapImageView = (ImageView) findViewById(R.id.roomMapImageView);
@@ -74,12 +82,13 @@ public class RoomMapActivity extends AppCompatActivity {
                     int[] viewLocation = new int[2];
                     v.getLocationOnScreen(viewLocation);    //viewLocation[0] = x, viewLocation[1] = y
 
-                    float xClickScreen = event.getX();
+                    float xClickScreen = event.getX();  //getX() seems to be already the relative coordinate in respect to the ImageView
                     float yClickScreen = event.getY();
-                    float xClickView = xClickScreen - viewLocation[0];
-                    float yClickView = yClickScreen - viewLocation[1];
 
-                    mConsole.append("\n xScreen: " + xClickScreen + " \n yScreen: " + yClickScreen + "\n xClickView: " + xClickView + " \n yClickView: " + yClickView);
+                    float xClickView = xClickScreen; // - viewLocation[0];
+                    float yClickView = yClickScreen; // - viewLocation[1];
+
+                    mConsole.setText("\n xScreen: " + xClickScreen + " \n yScreen: " + yClickScreen + "\n xClickView: " + xClickView + " \n yClickView: " + yClickView);
 
                     // Paint a red dot at the touched point
                     Bitmap imageContent = ((BitmapDrawable) mRoomMapImageView.getDrawable()).getBitmap();
@@ -94,10 +103,11 @@ public class RoomMapActivity extends AppCompatActivity {
                     Canvas canvas = new Canvas(imageContentMutable);
                     Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
                     paint.setColor(Color.RED);
-                    canvas.drawCircle(xBitmap, yBitmap, 10, paint);
+                    canvas.drawCircle(xBitmap, yBitmap, 40, paint);
                     mRoomMapImageView.setImageBitmap(imageContentMutable);
 
-                    Capture capture = mCaptureService.acquire();
+                    // acquire and set x and y
+                    Capture capture = mCaptureService.acquire(xBitmap, yBitmap);
 
                     //TODO do something with the coordinates and the measured data
 
