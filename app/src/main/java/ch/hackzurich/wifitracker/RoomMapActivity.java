@@ -8,14 +8,10 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -33,7 +29,7 @@ public class RoomMapActivity extends AppCompatActivity {
     private CaptureService mCaptureService;
     private Bitmap mRoomMap;
     private TextView mConsole;
-    private List<Capture> captureList;
+    private List<Capture> mCaptureList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +45,7 @@ public class RoomMapActivity extends AppCompatActivity {
         );
 
         // Capture List
-        captureList = new ArrayList<Capture>();
+        mCaptureList = new ArrayList<Capture>();
 
 
         // ImageView
@@ -81,9 +77,11 @@ public class RoomMapActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 if (v.equals(mRoomMapImageView)) {
 
+                    // get image-view coordinates
                     float xImageView = event.getX();
                     float yImageView = event.getY();
 
+                    // map the coordinates onto the bitmap-coordinates
                     float[] coordinates = new float[]{xImageView, yImageView};
                     Matrix matrix = new Matrix();
 
@@ -119,9 +117,7 @@ public class RoomMapActivity extends AppCompatActivity {
 
                     // acquire and set x and y
                     Capture capture = mCaptureService.acquire(xBitmap, yBitmap);
-
-                    //TODO do something with the coordinates and the measured data
-
+                    mCaptureList.add(capture);
                 }
                 return false;
             }
