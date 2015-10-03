@@ -1,15 +1,37 @@
 package ch.hackzurich.wifitracker;
 
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.Arrays;
+import java.util.List;
+
+import ch.hackzurich.wifitracker.models.Capture;
+import ch.hackzurich.wifitracker.services.CaptureService;
+
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
+
+    private CaptureService mCaptureService;
+
+    private SensorManager mSensorManager;
+
+    private TextView mConsole;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,14 +40,35 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        mSensorManager = (SensorManager) getApplication().getSystemService(Context.SENSOR_SERVICE);
+        Sensor sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+
+        mSensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+
+        mCaptureService = new CaptureService(
+                (WifiManager) getApplication().getSystemService(Context.WIFI_SERVICE),
+                "hackzurich"
+        );
+
+        mConsole = (TextView) findViewById(R.id.console);
+    }
+
+    public void onCapture(View view) {
+        Capture capture = mCaptureService.acquire();
+        mConsole.setText(capture.toString());
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        Log.i("Step detector", Arrays.toString(event.values));
+
+        Capture capture = mCaptureService.acquire();
+        mConsole.setText(capture.toString());
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // We'll see about that later
     }
 
     @Override
