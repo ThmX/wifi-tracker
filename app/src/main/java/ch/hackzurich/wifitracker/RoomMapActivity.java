@@ -98,7 +98,7 @@ public class RoomMapActivity extends AppCompatActivity {
                     // if valid coordinates
                     if(xBitmapValid && yBitmapValid){
                         // create capture
-                        Capture capture = mCaptureService.acquire(xBitmap, yBitmap);
+                        Capture capture = mCaptureService.acquire(xBitmap / (float) widthBitmap, yBitmap / (float) heightBitmap);
                         mCaptureList.add(capture);
                         mConsole.setText("Measurement: " + capture.getLevels());
 
