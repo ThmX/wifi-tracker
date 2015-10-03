@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -14,6 +15,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -79,32 +81,41 @@ public class RoomMapActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 if (v.equals(mRoomMapImageView)) {
 
-                    int[] viewLocation = new int[2];
-                    v.getLocationOnScreen(viewLocation);    //viewLocation[0] = x, viewLocation[1] = y
+                    float xImageView = event.getX();
+                    float yImageView = event.getY();
 
-                    float xClickScreen = event.getX();  //getX() seems to be already the relative coordinate in respect to the ImageView
-                    float yClickScreen = event.getY();
+                    float[] coordinates = new float[]{xImageView, yImageView};
+                    Matrix matrix = new Matrix();
 
-                    float xClickView = xClickScreen; // - viewLocation[0];
-                    float yClickView = yClickScreen; // - viewLocation[1];
+                    mRoomMapImageView.getImageMatrix().invert(matrix);
+                    matrix.postTranslate(mRoomMapImageView.getScrollX(), mRoomMapImageView.getScrollY());
+                    matrix.mapPoints(coordinates);
 
-                    mConsole.setText("\n xScreen: " + xClickScreen + " \n yScreen: " + yClickScreen + "\n xClickView: " + xClickView + " \n yClickView: " + yClickView);
+                    float xBitmap = coordinates[0];
+                    float yBitmap = coordinates[1];
 
                     // Paint a red dot at the touched point
                     Bitmap imageContent = ((BitmapDrawable) mRoomMapImageView.getDrawable()).getBitmap();
                     Bitmap imageContentMutable = imageContent.copy(Bitmap.Config.ARGB_8888, true);
 
-                    float widthRatio = imageContentMutable.getWidth() / ((float) v.getWidth()) ;
-                    float heightRatio = imageContentMutable.getHeight() / ((float) v.getHeight());
+                    int widthBitmap = imageContentMutable.getWidth();
+                    int heightBitmap = imageContentMutable.getHeight();
 
-                    float xBitmap = widthRatio * xClickView;
-                    float yBitmap = heightRatio * yClickView;
+                    boolean xBitmapValid = xBitmap > 0 && xBitmap < widthBitmap;
+                    boolean yBitmapValid = yBitmap > 0 && yBitmap < heightBitmap;
 
-                    Canvas canvas = new Canvas(imageContentMutable);
-                    Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                    paint.setColor(Color.RED);
-                    canvas.drawCircle(xBitmap, yBitmap, 40, paint);
-                    mRoomMapImageView.setImageBitmap(imageContentMutable);
+                    if(xBitmapValid && yBitmapValid){
+                        Canvas canvas = new Canvas(imageContentMutable);
+                        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                        paint.setColor(Color.RED);
+                        canvas.drawCircle(xBitmap, yBitmap, 40, paint);
+                        mRoomMapImageView.setImageBitmap(imageContentMutable);
+
+                        mConsole.setText("\n xView: " + xImageView + " \n yView: " + yImageView + "\n xBitmap: " + xBitmap + " \n yBitmap: " + yBitmap);
+                    }
+                    else{
+                        mConsole.setText("\n xView: " + xImageView + " \n yView: " + yImageView + "\n xBitmap: -" + " \n yBitmap: -");
+                    }
 
                     // acquire and set x and y
                     Capture capture = mCaptureService.acquire(xBitmap, yBitmap);

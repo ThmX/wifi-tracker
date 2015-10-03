@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Sensor mOrientationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 
         mSensorManager.registerListener(this, mStepSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_NORMAL);
+//        mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
         mCaptureService = new CaptureService(
                 (WifiManager) getApplication().getSystemService(Context.WIFI_SERVICE),
