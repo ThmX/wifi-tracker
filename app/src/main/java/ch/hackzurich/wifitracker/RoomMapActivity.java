@@ -23,6 +23,7 @@ import java.util.List;
 
 import ch.hackzurich.wifitracker.models.Capture;
 import ch.hackzurich.wifitracker.services.CaptureService;
+import ch.hackzurich.wifitracker.services.WebService;
 
 public class RoomMapActivity extends AppCompatActivity {
 
@@ -100,8 +101,12 @@ public class RoomMapActivity extends AppCompatActivity {
                         Capture capture = mCaptureService.acquire(xBitmap, yBitmap);
                         mCaptureList.add(capture);
                         mConsole.setText("Measurement: " + capture.getLevels());
+
+                        // DEBUG
                         Log.i("Number of captures", String.valueOf(mCaptureList.size()));
                         Log.i("CaptureLevels:", capture.getLevels());
+                        WebService.preview(capture, mConsole.getContext());
+
 
                         // draw
                         Canvas canvas = new Canvas(imageContentMutable);

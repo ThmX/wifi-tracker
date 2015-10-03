@@ -34,6 +34,8 @@ public class CaptureService {
             }
         }
 
+        wifiManager.startScan();
+
         return new Capture(SSID, spots);
 
     }
