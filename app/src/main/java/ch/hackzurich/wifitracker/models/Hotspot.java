@@ -1,19 +1,18 @@
 package ch.hackzurich.wifitracker.models;
 
-public class CaptureSpot {
-    private String BSSID;
-
+public class Hotspot {
+    private String bssid;
     private long timestamp;
     private int level;
 
-    public CaptureSpot(String BSSID, long timestamp, int level) {
-        this.BSSID = BSSID;
+    public Hotspot(String bssid, long timestamp, int level) {
+        this.bssid = bssid;
         this.timestamp = timestamp;
         this.level = level;
     }
 
-    public String getBSSID() {
-        return BSSID;
+    public String getBssid() {
+        return bssid;
     }
 
     public int getLevel() {
@@ -26,8 +25,8 @@ public class CaptureSpot {
 
     @Override
     public String toString() {
-        return "CaptureSpot{" +
-                "BSSID='" + BSSID + '\'' +
+        return "Hotspot{" +
+                "bssid='" + bssid + '\'' +
                 ", timestamp=" + timestamp +
                 ", level=" + level +
                 '}';

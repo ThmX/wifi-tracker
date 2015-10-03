@@ -3,11 +3,13 @@ package ch.hackzurich.wifitracker.services;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
 import ch.hackzurich.wifitracker.models.Capture;
-import ch.hackzurich.wifitracker.models.CaptureSpot;
+import ch.hackzurich.wifitracker.models.Hotspot;
+import ch.hackzurich.wifitracker.models.Position;
 
 public class CaptureService {
 
@@ -24,29 +26,18 @@ public class CaptureService {
         wifiManager.startScan();
     }
 
-    public Capture acquire() {
+    public Capture acquire(double x, double y) {
 
-        List<CaptureSpot> spots = new LinkedList<>();
+        List<Hotspot> spots = new LinkedList<>();
 
         for (ScanResult r: wifiManager.getScanResults()) {
             if (r.SSID.equals(this.SSID)) {
-                spots.add(new CaptureSpot(r.BSSID, r.timestamp, r.level));
+                spots.add(new Hotspot(r.BSSID, r.timestamp, r.level));
             }
         }
 
         wifiManager.startScan();
 
-        return new Capture(SSID, spots);
-
-    }
-
-    public Capture acquire(float x, float y) {
-
-        Capture cap = acquire();
-        cap.setX(x);
-        cap.setY(y);
-
-        return cap;
-
+        return new Capture(SSID, new Date().getTime(), new Position(x, y), "hackzurich_0", spots);
     }
 }

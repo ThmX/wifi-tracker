@@ -1,53 +1,45 @@
 package ch.hackzurich.wifitracker.models;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class Capture {
 
-    private String SSID;
+    private String ssid;
 
-    private List<CaptureSpot> spots;
+    private long timestamp;
 
-    private float x;
-    private float y;
+    private Position position;
 
-    // constructors
-    public Capture(String SSID, List<CaptureSpot> spots) {
-        this.SSID = SSID;
-        this.spots = spots;
-        this.x = 0;
-        this.y = 0;
+    private String location;
+
+    private List<Hotspot> hotspots;
+
+    public Capture(String ssid, long timestamp, Position position, String location, List<Hotspot> hotspots) {
+        this.ssid = ssid;
+        this.timestamp = timestamp;
+        this.position = position;
+        this.location = location;
+        this.hotspots = hotspots;
     }
 
-    public Capture(String SSID, List<CaptureSpot> spots, float x, float y) {
-        super();
-        this.x = x;
-        this.y = y;
+    public String getSsid() {
+        return ssid;
     }
 
-    public String getSSID() {
-        return SSID;
+    public long getTimestamp() {
+        return timestamp;
     }
 
-    public List<CaptureSpot> getSpots() {
-        return spots;
+    public Position getPosition() {
+        return position;
     }
 
-    public float getX() {
-        return x;
+    public String getLocation() {
+        return location;
     }
 
-    public void setX(float x) {
-        this.x = x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
-    public void setY(float y) {
-        this.y = y;
+    public List<Hotspot> getHotspots() {
+        return hotspots;
     }
 
     public void toJson() {
@@ -56,7 +48,7 @@ public class Capture {
     // get levels as string output
     public String getLevels() {
         String levels = "";
-        for(CaptureSpot s:spots) {
+        for(Hotspot s: hotspots) {
             levels = levels + String.valueOf(s.getLevel()) + "; ";
         }
         if (levels.length() >= 2) {
@@ -69,10 +61,11 @@ public class Capture {
     @Override
     public String toString() {
         return "Capture{" +
-                "SSID='" + SSID + '\'' +
-                ", spots=" + spots +
-                ", x=" + x +
-                ", y=" + y +
+                "ssid='" + ssid + '\'' +
+                ", timestamp=" + timestamp +
+                ", position=" + position +
+                ", location='" + location + '\'' +
+                ", hotspots=" + hotspots +
                 '}';
     }
 }

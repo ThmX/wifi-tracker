@@ -1,11 +1,11 @@
 package ch.hackzurich.wifitracker.models;
 
-public class MapPic {
+public class Location {
     private String name;
     private String filename;
     private int orientation;
 
-    public MapPic(String name, String filename, int orientation) {
+    public Location(String name, String filename, int orientation) {
         this.name = name;
         this.filename = filename;
         this.orientation = orientation;
@@ -25,7 +25,7 @@ public class MapPic {
 
     @Override
     public String toString() {
-        return "MapPic{" +
+        return "Location{" +
                 "name='" + name + '\'' +
                 ", filename='" + filename + '\'' +
                 ", orientation=" + orientation +

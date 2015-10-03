@@ -115,8 +115,9 @@ public class MainActivity extends AppCompatActivity {
                         canvas.drawCircle(xBitmap, yBitmap, 30, paint);
                         paint.setStrokeWidth(12);
                         if (mCaptureList.size() > 1) {
-                            canvas.drawLine(mCaptureList.get(mCaptureList.size() - 2).getX() * widthBitmap,
-                                    mCaptureList.get(mCaptureList.size() - 2).getY() * heightBitmap,
+                            canvas.drawLine(
+                                    (float) mCaptureList.get(mCaptureList.size() - 2).getPosition().getX() * widthBitmap,
+                                    (float) mCaptureList.get(mCaptureList.size() - 2).getPosition().getY() * heightBitmap,
                                     xBitmap, yBitmap, paint);
                         }
                         mRoomMapImageView.setImageBitmap(imageContentMutable);

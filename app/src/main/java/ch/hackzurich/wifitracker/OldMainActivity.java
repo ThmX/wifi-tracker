@@ -52,7 +52,7 @@ public class OldMainActivity extends AppCompatActivity implements SensorEventLis
     }
 
     public void onCapture(View view) {
-        Capture capture = mCaptureService.acquire();
+        Capture capture = mCaptureService.acquire(0, 0);
         mConsole.setText(capture.toString());
     }
 
@@ -65,7 +65,7 @@ public class OldMainActivity extends AppCompatActivity implements SensorEventLis
             Log.i("Orientation sensor", Arrays.toString(event.values));
         }
 
-        Capture capture = mCaptureService.acquire();
+        Capture capture = mCaptureService.acquire(0, 0);
         mConsole.setText(capture.toString());
     }
 
