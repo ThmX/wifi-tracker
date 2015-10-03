@@ -18,18 +18,41 @@ public class WebService {
 
     private URL mURL;
 
-    public WebService(String url) throws MalformedURLException {
-        this.mURL = new URL(url);
+    public WebService(String url) {
+        try {
+            this.mURL = new URL(url);
+        } catch (MalformedURLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void send(Capture capture) throws IOException {
-        HttpURLConnection conn = (HttpURLConnection) mURL.openConnection();
 
         Gson gson = new Gson();
         String json = gson.toJson(capture);
 
-        Writer writer = new OutputStreamWriter(conn.getOutputStream());
-        writer.write(json);
+        HttpURLConnection conn = (HttpURLConnection) mURL.openConnection();
+        conn.setDoOutput(true);
+        conn.setInstanceFollowRedirects(false);
+        conn.setChunkedStreamingMode(0);
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "text/plain");
+        conn.setRequestProperty("charset", "utf-8");
+        conn.setRequestProperty("Content-Length", Integer.toString(json.length()));
+
+        Writer writer = null;
+        try {
+            writer = new OutputStreamWriter(conn.getOutputStream());
+            writer.write(json);
+            writer.flush();
+        } catch (IOException ex) {
+            Log.e("WebService", "Error", ex);
+            throw ex;
+        } finally {
+            if (writer != null) writer.close();
+        }
+
+        conn.disconnect();
     }
 
     // For debugging purposes

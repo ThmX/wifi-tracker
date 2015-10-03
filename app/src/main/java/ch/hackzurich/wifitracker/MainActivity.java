@@ -36,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -47,21 +46,15 @@ public class MainActivity extends AppCompatActivity {
                 "hackzurich"
         );
 
+        // Capture List
+        mCaptureList = new ArrayList<Capture>();
+
+
         // ImageView
         mRoomMapImageView = (ImageView) findViewById(R.id.roomMapImageView);
 
         // Console
         mConsole = (TextView) findViewById(R.id.consoleRoomMap);
-
-        initializeActivity();
-    }
-
-    public void initializeActivity(){
-        // Capture List
-        mCaptureList = new ArrayList<Capture>();
-
-        // Empty console text
-        mConsole.setText(null);
 
         // Default Image
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -107,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                         // create capture
                         Capture capture = mCaptureService.acquire(xBitmap / (float) widthBitmap, yBitmap / (float) heightBitmap);
                         mCaptureList.add(capture);
-                        mConsole.setText("Measurements:" + capture.getLevels());
+                        mConsole.setText("Measurement: " + capture.getLevels());
 
                         // DEBUG
                         Log.i("Number of captures", String.valueOf(mCaptureList.size()));
@@ -135,9 +128,8 @@ public class MainActivity extends AppCompatActivity {
         };
 
         mRoomMapImageView.setOnTouchListener(touchListener);
+
     }
 
-    public void clearButtonClicked(View view){
-        initializeActivity();
-    }
+
 }
