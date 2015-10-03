@@ -37,4 +37,14 @@ public class CaptureService {
         return new Capture(SSID, spots);
 
     }
+
+    public Capture acquire(float x, float y) {
+
+        Capture cap = acquire();
+        cap.setX(x);
+        cap.setY(y);
+
+        return cap;
+
+    }
 }
