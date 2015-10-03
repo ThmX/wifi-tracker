@@ -56,21 +56,11 @@ public class RoomMapActivity extends AppCompatActivity {
 
         // Default Image
         BitmapFactory.Options options = new BitmapFactory.Options();
-        /* TODO check image dimensions first to avoid overflow
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(getResources(), R.drawable.technopark_0, options);
-        int imageHeight = options.outHeight;
-        int imageWidth = options.outWidth;
-        String imageType = options.outMimeType;
-        */
-
         mRoomMap = BitmapFactory.decodeResource(getResources(), R.drawable.technopark_0, options);
         mRoomMapImageView.setImageBitmap(mRoomMap);
 
         // Starting Values of Image
         ImageView v = mRoomMapImageView;
-//         mConsole.append("\n x: " + v.getX() + " \n y: " + v.getY() + "\n width: " + v.getWidth() + " \n height: " + v.getHeight());
-
 
         // Listener
         View.OnTouchListener touchListener = new View.OnTouchListener() {
@@ -119,7 +109,7 @@ public class RoomMapActivity extends AppCompatActivity {
                     Capture capture = mCaptureService.acquire(xBitmap, yBitmap);
                     mCaptureList.add(capture);
                 }
-                return false;
+                return true;
             }
         };
 
