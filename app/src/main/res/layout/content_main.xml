@@ -47,7 +47,17 @@
                 <TextView android:id="@+id/consoleRoomMap"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="fill_horizontal|fill_vertical" />
+                    android:gravity="fill_horizontal|fill_vertical"
+                    android:layout_alignParentRight="true" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/Clear"
+                    android:id="@+id/clearButton"
+                    android:layout_alignParentBottom="true"
+                    android:onClick="clearButtonClicked"
+                    android:layout_alignParentRight="true" />
             </RelativeLayout>
 
         </RelativeLayout>
