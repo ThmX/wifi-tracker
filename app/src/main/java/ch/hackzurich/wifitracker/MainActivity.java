@@ -41,9 +41,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setSupportActionBar(toolbar);
 
         mSensorManager = (SensorManager) getApplication().getSystemService(Context.SENSOR_SERVICE);
-        Sensor sensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        Sensor mStepSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        Sensor mOrientationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 
-        mSensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mStepSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
         mCaptureService = new CaptureService(
                 (WifiManager) getApplication().getSystemService(Context.WIFI_SERVICE),
@@ -60,7 +62,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        Log.i("Step detector", Arrays.toString(event.values));
+        if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
+            Log.i("Step detector", Arrays.toString(event.values));
+        }
+        else if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+            Log.i("Orientation sensor", Arrays.toString(event.values));
+        }
 
         Capture capture = mCaptureService.acquire();
         mConsole.setText(capture.toString());
