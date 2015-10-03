@@ -46,15 +46,21 @@ public class MainActivity extends AppCompatActivity {
                 "hackzurich"
         );
 
-        // Capture List
-        mCaptureList = new ArrayList<Capture>();
-
-
         // ImageView
         mRoomMapImageView = (ImageView) findViewById(R.id.roomMapImageView);
 
         // Console
         mConsole = (TextView) findViewById(R.id.consoleRoomMap);
+
+        initializeActivity();
+    }
+
+    public void initializeActivity(){
+        // Capture List
+        mCaptureList = new ArrayList<Capture>();
+
+        // Empty console text
+        mConsole.setText(null);
 
         // Default Image
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -100,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
                         // create capture
                         Capture capture = mCaptureService.acquire(xBitmap / (float) widthBitmap, yBitmap / (float) heightBitmap);
                         mCaptureList.add(capture);
-                        mConsole.setText("Measurement: " + capture.getLevels());
+                        mConsole.setText("Measurements:" + capture.getLevels());
 
                         // DEBUG
                         Log.i("Number of captures", String.valueOf(mCaptureList.size()));
@@ -128,8 +134,9 @@ public class MainActivity extends AppCompatActivity {
         };
 
         mRoomMapImageView.setOnTouchListener(touchListener);
-
     }
 
-
+    public void clearButtonClicked(View view){
+        initializeActivity();
+    }
 }
