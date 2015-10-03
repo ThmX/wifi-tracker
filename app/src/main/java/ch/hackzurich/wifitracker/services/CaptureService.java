@@ -32,7 +32,7 @@ public class CaptureService {
 
         for (ScanResult r: wifiManager.getScanResults()) {
             if (r.SSID.equals(this.SSID)) {
-                spots.add(new Hotspot(r.BSSID, r.timestamp, r.level));
+                spots.add(new Hotspot(r.BSSID, r.timestamp, wifiManager.calculateSignalLevel(r.level, LEVEL)));
             }
         }
 
