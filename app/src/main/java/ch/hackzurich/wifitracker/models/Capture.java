@@ -16,6 +16,8 @@ public class Capture {
     public Capture(String SSID, List<CaptureSpot> spots) {
         this.SSID = SSID;
         this.spots = spots;
+        this.x = 0;
+        this.y = 0;
     }
 
     public Capture(String SSID, List<CaptureSpot> spots, float x, float y) {
