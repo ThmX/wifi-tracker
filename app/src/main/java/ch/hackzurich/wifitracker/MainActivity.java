@@ -9,6 +9,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView mRoomMapImageView;
     private CaptureService mCaptureService;
+    private WebService mWebService;
     private Bitmap mRoomMap;
     private TextView mConsole;
     private List<Capture> mCaptureList;
@@ -45,6 +48,11 @@ public class MainActivity extends AppCompatActivity {
                 (WifiManager) getApplication().getSystemService(Context.WIFI_SERVICE),
                 "hackzurich"
         );
+
+        mWebService = new WebService("http://172.27.7.114:9000/capture");
+
+        // Capture List
+        mCaptureList = new ArrayList<Capture>();
 
         // ImageView
         mRoomMapImageView = (ImageView) findViewById(R.id.roomMapImageView);
@@ -104,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                     // if valid coordinates
                     if(xBitmapValid && yBitmapValid){
                         // create capture
-                        Capture capture = mCaptureService.acquire(xBitmap / (float) widthBitmap, yBitmap / (float) heightBitmap);
+                        final Capture capture = mCaptureService.acquire(xBitmap / (float) widthBitmap, yBitmap / (float) heightBitmap);
                         mCaptureList.add(capture);
                         mConsole.setText("Measurements:" + capture.getLevels());
 
@@ -113,6 +121,20 @@ public class MainActivity extends AppCompatActivity {
                         Log.i("CaptureLevels:", capture.getLevels());
                         WebService.preview(capture, mConsole.getContext());
 
+
+                        new AsyncTask<Capture, Void, Void>() {
+
+                            @Override
+                            protected Void doInBackground(Capture... params) {
+
+                                try {
+                                    mWebService.send(params[0]);
+                                } catch (IOException ex) {
+                                    Log.e("AsyncTask", "Error", ex);
+                                }
+                                return null;
+                            }
+                        }.execute(capture);
 
                         // draw
                         Canvas canvas = new Canvas(imageContentMutable);
