@@ -38,6 +38,6 @@ public class CaptureService {
 
         wifiManager.startScan();
 
-        return new Capture(SSID, new Date().getTime(), new Position(x, y), "hackzurich_0", spots);
+        return new Capture(SSID, new Date().getTime(), new Position(x, y), "technopark_0", spots);
     }
 }
