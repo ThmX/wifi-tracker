@@ -40,22 +40,4 @@ public class CaptureService {
 
         return new Capture(SSID, new Date().getTime(), new Position(x, y), "technopark_0", spots);
     }
-
-    public void startScan(){
-        wifiManager.startScan();
-    }
-
-
-    // only get the results (without starting a scan)
-    public Capture getScanResults(){
-        List<Hotspot> spots = new LinkedList<>();
-
-        for (ScanResult r: wifiManager.getScanResults()) {
-            if (r.SSID.equals(this.SSID)) {
-                spots.add(new Hotspot(r.BSSID, r.timestamp, wifiManager.calculateSignalLevel(r.level, LEVEL)));
-            }
-        }
-
-        return new Capture(SSID, new Date().getTime(),null, "hackzurich_0", spots);
-    }
 }

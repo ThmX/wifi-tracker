@@ -5,4 +5,6 @@
         android:orderInCategory="100" app:showAsAction="never" />
     <item android:id="@+id/roomMapActivity" android:title="@string/title_activity_room_map"
         android:orderInCategory="10" app:showAsAction="never" />
+    <item android:id="@+id/AutomaticLocationScanningActivity" android:title="@string/AutomaticTracking"
+        android:orderInCategory="5" app:showAsAction="always" />
 </menu>

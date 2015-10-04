@@ -5,4 +5,6 @@
     <string name="roomMapInstructions">Please measure the Wifi signal strength at various points in the room by clicking on your current position on the map.</string>
     <string name="Clear">Clear</string>
     <string name="Measurements">Measurements:</string>
+    <string name="StartStop">Start/Stop</string>
+    <string name="AutomaticTracking">Automatic Tracking</string>
 </resources>
