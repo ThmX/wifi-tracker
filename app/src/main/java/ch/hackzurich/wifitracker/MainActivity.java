@@ -8,6 +8,10 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,17 +28,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.hackzurich.wifitracker.models.Capture;
+import ch.hackzurich.wifitracker.models.Compass;
+import ch.hackzurich.wifitracker.models.Position;
 import ch.hackzurich.wifitracker.services.CaptureService;
 import ch.hackzurich.wifitracker.services.WebService;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
+
+    private final int STEPSIZE = 60; // in cm
 
     private ImageView mRoomMapImageView;
     private CaptureService mCaptureService;
     private WebService mWebService;
+    private SensorManager mSensorManager;
+    private Compass mCompass;
     private Bitmap mRoomMap;
     private TextView mConsole;
     private List<Capture> mCaptureList;
+    private long mLastTouchTime;
+    private double mMapAngleOffset;
+    private double mRelStepSize;
+    private ArrayList<Float> mAngleTrackList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,16 +57,23 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //capture service
+        // capture service
         mCaptureService = new CaptureService(
                 (WifiManager) getApplication().getSystemService(Context.WIFI_SERVICE),
                 "hackzurich"
         );
 
-        mWebService = new WebService("http://172.27.7.114:9000/capture");
+		// web service
+		mWebService = new WebService("http://172.27.7.114:9000/capture");
 
-        // Capture List
-        mCaptureList = new ArrayList<Capture>();
+        // init compass and step sensors
+        mSensorManager = (SensorManager) getApplication().getSystemService(Context.SENSOR_SERVICE);
+        Sensor mStepSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        mSensorManager.registerListener(this, mStepSensor, SensorManager.SENSOR_DELAY_NORMAL);
+//        Sensor mOrientationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+//        mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        mCompass = new Compass(mSensorManager);
+        mCompass.start();
 
         // ImageView
         mRoomMapImageView = (ImageView) findViewById(R.id.roomMapImageView);
@@ -60,10 +81,33 @@ public class MainActivity extends AppCompatActivity {
         // Console
         mConsole = (TextView) findViewById(R.id.consoleRoomMap);
 
+        // Map Angle Offset
+        mMapAngleOffset = 165.0; // deg
+
         initializeActivity();
     }
 
-    public void initializeActivity(){
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
+            float[] values = new float[3];
+            if (mAngleTrackList == null) {
+                mAngleTrackList = new ArrayList<Float>();
+            }
+            mAngleTrackList.add(new Float(mCompass.getAzimuth()));
+//            Log.i("Step detector", Arrays.toString(event.values));
+        }
+//        else if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+////            Log.i("Orientation sensor", Arrays.toString(event.values));
+//        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        //TODO sensor accuracy...?
+    }
+
+    private void initializeActivity(){
         // Capture List
         mCaptureList = new ArrayList<Capture>();
 
@@ -82,6 +126,14 @@ public class MainActivity extends AppCompatActivity {
         View.OnTouchListener touchListener = new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 if (v.equals(mRoomMapImageView)) {
+
+                    // don't do anything if last event has happened shortly before
+                    if (mLastTouchTime != 0) {
+                        if (event.getEventTime() - mLastTouchTime < 1000) {
+                            return true;
+                        }
+                        mLastTouchTime = event.getEventTime();
+                    }
 
                     // get image-view coordinates
                     float xImageView = event.getX();
@@ -108,6 +160,8 @@ public class MainActivity extends AppCompatActivity {
                     boolean xBitmapValid = xBitmap > 0 && xBitmap < widthBitmap;
                     boolean yBitmapValid = yBitmap > 0 && yBitmap < heightBitmap;
 
+                    // Calculate relative step size : STEPSIZE (cm) / 100 * widthBitmap / relativeBitmapWhiteSpace / realBuildingSize (m);
+                    mRelStepSize = STEPSIZE / 100 * widthBitmap / 1.05 / 110;
 
                     // if valid coordinates
                     if(xBitmapValid && yBitmapValid){
@@ -156,6 +210,16 @@ public class MainActivity extends AppCompatActivity {
         };
 
         mRoomMapImageView.setOnTouchListener(touchListener);
+    }
+
+    private Capture estimatedCapture() {
+        // estimate Position
+        Position lastPos = mCaptureList.get(mCaptureList.size() - 1).getPosition();
+        Position newPosition = lastPos.walk(mAngleTrackList, mRelStepSize, mMapAngleOffset);
+        mAngleTrackList.clear(); // reset step count and angles list
+
+        // capture
+        return mCaptureService.acquire(newPosition.getX(), newPosition.getY());
     }
 
     public void clearButtonClicked(View view){
