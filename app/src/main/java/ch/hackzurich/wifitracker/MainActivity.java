@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
                 "hackzurich"
         );
 
-        mWebService = new WebService("http://172.27.7.114:9000/capture");
+        mWebService = new WebService("http://wifi-tracker-play.herokuapp.com/capture");
 
         // Capture List
         mCaptureList = new ArrayList<Capture>();
